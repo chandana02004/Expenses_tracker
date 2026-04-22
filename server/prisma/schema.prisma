@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String             @id @default(cuid())
+  email              String             @unique
+  name               String
+  passwordHash       String
+  currency           String             @default("USD")
+  phone              String?
+  occupation         String?
+  monthlyIncome      Decimal?
+  salaryDate         Int?
+  financialYearStart Int                @default(1)
+  alertThreshold     Int                @default(80)
+  language           String             @default("en")
+  notifications      Boolean            @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime           @default(now())
+  categories         Category[]
+  expenses           Expense[]
+  recurringExpenses  RecurringExpense[]
+}
+
+model Category {
+  id                String             @id @default(cuid())
+  name              String
+  color             String
+  icon              String
+  budgetLimit       Decimal?
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses          Expense[]
+  recurringExpenses RecurringExpense[]
+  createdAt         DateTime           @default(now())
+
+  @@unique([name, userId])
+}
+
+model Expense {
+  id            String   @id @default(cuid())
+  amount        Decimal
+  description   String?
+  date          DateTime
+  paymentMethod String   @default("Cash")
+  notes         String?
+  receipt       String?
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+}
+
+model RecurringExpense {
+  id            String   @id @default(cuid())
+  title         String
+  amount        Decimal
+  paymentMethod String   @default("Cash")
+  notes         String?
+  interval      String   @default("monthly")
+  dayOfMonth    Int      @default(1)
+  isActive      Boolean  @default(true)
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+}
