@@ -207,10 +207,24 @@ export default function Expenses() {
 
       {/* ── Mini Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatMini label="Total records" value={total}       icon={Wallet}   color="hsl(263,70%,65%)" />
-        <StatMini label="This month"    value={fmt(monthTotal)} icon={Calendar} color="#f97316" />
-        <StatMini label="Top category"  value={topCat}      icon={BarChart3} color="#22c55e" />
-        <StatMini label="Avg daily spend" value={fmt(avgDaily)} icon={TrendingUp} color="#06b6d4" />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card border border-border rounded-xl p-4 h-16 animate-pulse flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-secondary/60 shrink-0" />
+              <div className="space-y-2 flex-1">
+                <div className="h-2.5 w-16 bg-secondary/50 rounded" />
+                <div className="h-4 w-20 bg-secondary/70 rounded" />
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
+            <StatMini label="Total records"   value={total}           icon={Wallet}    color="hsl(263,70%,65%)" />
+            <StatMini label="This month"      value={fmt(monthTotal)} icon={Calendar}  color="#f97316" />
+            <StatMini label="Top category"    value={topCat}          icon={BarChart3} color="#22c55e" />
+            <StatMini label="Avg daily spend" value={fmt(avgDaily)}   icon={TrendingUp} color="#06b6d4" />
+          </>
+        )}
       </div>
 
       {/* ── Search + Filters ── */}

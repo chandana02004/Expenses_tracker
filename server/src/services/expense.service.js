@@ -31,11 +31,11 @@ export async function listExpenses(userId, query) {
   }
 
   const orderBy = {
-    newest:  { date:   'desc' },
-    oldest:  { date:   'asc'  },
-    highest: { amount: 'desc' },
-    lowest:  { amount: 'asc'  },
-  }[sort] ?? { date: 'desc' }
+    newest:  [{ date: 'desc' }, { createdAt: 'desc' }],
+    oldest:  [{ date: 'asc'  }, { createdAt: 'asc'  }],
+    highest: [{ amount: 'desc' }, { createdAt: 'desc' }],
+    lowest:  [{ amount: 'asc'  }, { createdAt: 'desc' }],
+  }[sort] ?? [{ date: 'desc' }, { createdAt: 'desc' }]
 
   const skip = (parseInt(page) - 1) * parseInt(limit)
 

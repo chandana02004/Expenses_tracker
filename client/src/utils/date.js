@@ -1,5 +1,14 @@
+import useStore from '@/store/useStore'
+
+const LANG_LOCALE = { en: 'en-US', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR' }
+
+function getLocale() {
+  const language = useStore.getState().language ?? 'en'
+  return LANG_LOCALE[language] ?? 'en-US'
+}
+
 export function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString(undefined, {
+  return new Date(dateStr).toLocaleDateString(getLocale(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -13,7 +22,7 @@ export function getCurrentMonth() {
 
 export function getMonthLabel(monthStr) {
   const [year, month] = monthStr.split('-')
-  return new Date(year, month - 1).toLocaleDateString(undefined, {
+  return new Date(year, month - 1).toLocaleDateString(getLocale(), {
     month: 'short',
     year: 'numeric',
   })

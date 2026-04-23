@@ -65,10 +65,11 @@ const tabVariants = {
 
 /* ════════════════════════════════════════ */
 export default function Profile() {
-  const { user, setUser, theme, toggleTheme, logout } = useStore()
+  const { user, setUser, theme, toggleTheme, logout, setLanguage } = useStore()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('personal')
   const [profile, setProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(true)
   const [categories, setCategories] = useState([])
   const [toast, setToast] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -79,11 +80,16 @@ export default function Profile() {
   }
 
   useEffect(() => {
-    getMe().then(r => setProfile(r.data.user)).catch(console.error)
-    getCategories().then(r => setCategories(r.data.categories ?? r.data)).catch(console.error)
+    getMe()
+      .then(r => setProfile(r.data.user))
+      .catch(console.error)
+      .finally(() => setProfileLoading(false))
+    getCategories().then(cats => setCategories(Array.isArray(cats) ? cats : [])).catch(console.error)
   }, [])
 
   const color = avatarColor(user?.name)
+
+  if (profileLoading) return <ProfileSkeleton />
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
@@ -160,7 +166,7 @@ export default function Profile() {
         <motion.div key={activeTab} variants={tabVariants} initial="hidden" animate="show" exit="exit">
           {activeTab === 'personal'    && <PersonalTab    profile={profile} setProfile={setProfile} setUser={setUser} showToast={showToast} />}
           {activeTab === 'security'    && <SecurityTab    profile={profile} showToast={showToast} logout={logout} navigate={navigate} />}
-          {activeTab === 'preferences' && <PreferencesTab profile={profile} setProfile={setProfile} setUser={setUser} showToast={showToast} theme={theme} toggleTheme={toggleTheme} />}
+          {activeTab === 'preferences' && <PreferencesTab profile={profile} setProfile={setProfile} setUser={setUser} showToast={showToast} theme={theme} toggleTheme={toggleTheme} setLanguage={setLanguage} />}
           {activeTab === 'budgets'     && <BudgetsTab     categories={categories} setCategories={setCategories} showToast={showToast} currency={user?.currency} />}
           {activeTab === 'data'        && <DataTab        showToast={showToast} showDeleteConfirm={showDeleteConfirm} setShowDeleteConfirm={setShowDeleteConfirm} logout={logout} navigate={navigate} />}
         </motion.div>
@@ -304,7 +310,7 @@ function SecurityTab({ profile, showToast, logout, navigate }) {
 /* ══════════════════════════════════════════
    TAB: Preferences
 ══════════════════════════════════════════ */
-function PreferencesTab({ profile, setProfile, setUser, showToast, theme, toggleTheme }) {
+function PreferencesTab({ profile, setProfile, setUser, showToast, theme, toggleTheme, setLanguage }) {
   const [saving, setSaving] = useState(false)
   const [local, setLocal] = useState({
     currency:           profile?.currency           ?? 'USD',
@@ -328,11 +334,19 @@ function PreferencesTab({ profile, setProfile, setUser, showToast, theme, toggle
   const save = async () => {
     setSaving(true)
     try {
-      const r = await updateMe(local)
+      const payload = {
+        ...local,
+        monthlyIncome: local.monthlyIncome !== '' ? parseFloat(local.monthlyIncome) : null,
+        salaryDate:    local.salaryDate    !== '' ? parseInt(local.salaryDate)      : null,
+      }
+      const r = await updateMe(payload)
       setProfile(r.data.user)
       setUser(r.data.user)
+      setLanguage(payload.language)
       showToast('Preferences saved')
-    } catch { showToast('Save failed', 'error') }
+    } catch (e) {
+      showToast(e.response?.data?.error || e.message || 'Save failed', 'error')
+    }
     finally { setSaving(false) }
   }
 
@@ -595,6 +609,50 @@ function DataTab({ showToast, showDeleteConfirm, setShowDeleteConfirm, logout, n
           </AnimatePresence>
         </div>
       </Card>
+    </div>
+  )
+}
+
+/* ── Profile Skeleton ── */
+function ProfileSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto space-y-6 pb-12 animate-pulse">
+      {/* Header card */}
+      <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+        <div className="w-20 h-20 rounded-2xl bg-secondary/70 shrink-0" />
+        <div className="flex-1 space-y-3 w-full">
+          <div className="h-5 w-48 bg-secondary/70 rounded-lg" />
+          <div className="h-3 w-36 bg-secondary/50 rounded-lg" />
+          <div className="flex gap-3">
+            <div className="h-3 w-40 bg-secondary/40 rounded-lg" />
+            <div className="h-3 w-24 bg-secondary/40 rounded-lg" />
+          </div>
+        </div>
+        <div className="flex sm:flex-col gap-4 sm:gap-3 shrink-0">
+          <div className="h-7 w-12 bg-secondary/50 rounded-lg" />
+          <div className="h-3 w-16 bg-secondary/40 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Tabs bar */}
+      <div className="h-11 bg-card border border-border rounded-xl" />
+
+      {/* Content card */}
+      <div className="bg-card border border-border rounded-xl p-6 space-y-5">
+        <div className="h-4 w-40 bg-secondary/70 rounded-lg" />
+        <div className="h-3 w-64 bg-secondary/40 rounded-lg" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="space-y-2">
+              <div className="h-3 w-20 bg-secondary/50 rounded" />
+              <div className="h-10 bg-secondary/40 rounded-lg" />
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-end pt-2">
+          <div className="h-9 w-28 bg-secondary/60 rounded-lg" />
+        </div>
+      </div>
     </div>
   )
 }

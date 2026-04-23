@@ -249,12 +249,26 @@ export default function Categories() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Categories"      value={categories.length}                        icon={BarChart3}     color="#8b5cf6" delay={0}    />
-        <StatCard label="Spent This Month" value={fmt(stats.totalSpent)}                   icon={TrendingUp}    color="#f97316" delay={0.05} />
-        <StatCard label="Total Budgeted"  value={stats.totalBudget ? fmt(stats.totalBudget) : '—'}
-          sub={`${categories.filter(c=>c.budgetLimit).length} with limits`}                icon={Wallet}        color="#06b6d4" delay={0.1}  />
-        <StatCard label="Over Budget"     value={stats.overBudget}
-          sub={stats.overBudget ? 'Need attention' : 'All within limits'}                  icon={AlertTriangle} color={stats.overBudget ? '#ef4444' : '#22c55e'} delay={0.15} />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-card border border-border rounded-2xl p-4 h-20 animate-pulse flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-secondary/60 shrink-0" />
+              <div className="space-y-2 flex-1">
+                <div className="h-2.5 w-16 bg-secondary/50 rounded" />
+                <div className="h-5 w-20 bg-secondary/70 rounded" />
+              </div>
+            </div>
+          ))
+        ) : (
+          <>
+            <StatCard label="Categories"       value={categories.length}                        icon={BarChart3}     color="#8b5cf6" delay={0}    />
+            <StatCard label="Spent This Month" value={fmt(stats.totalSpent)}                    icon={TrendingUp}    color="#f97316" delay={0.05} />
+            <StatCard label="Total Budgeted"   value={stats.totalBudget ? fmt(stats.totalBudget) : '—'}
+              sub={`${categories.filter(c=>c.budgetLimit).length} with limits`}                 icon={Wallet}        color="#06b6d4" delay={0.1}  />
+            <StatCard label="Over Budget"      value={stats.overBudget}
+              sub={stats.overBudget ? 'Need attention' : 'All within limits'}                   icon={AlertTriangle} color={stats.overBudget ? '#ef4444' : '#22c55e'} delay={0.15} />
+          </>
+        )}
       </div>
 
       {/* Top spenders */}

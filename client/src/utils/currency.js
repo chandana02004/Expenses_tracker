@@ -1,3 +1,5 @@
+import useStore from '@/store/useStore'
+
 export const CURRENCIES = [
   { code: 'USD', label: 'US Dollar', symbol: '$' },
   { code: 'EUR', label: 'Euro', symbol: '€' },
@@ -11,8 +13,12 @@ export const CURRENCIES = [
   { code: 'AED', label: 'UAE Dirham', symbol: 'د.إ' },
 ]
 
+const LANG_LOCALE = { en: 'en-US', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR' }
+
 export function formatCurrency(amount, currency = 'USD') {
-  return new Intl.NumberFormat(undefined, {
+  const language = useStore.getState().language ?? 'en'
+  const locale = LANG_LOCALE[language] ?? 'en-US'
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,

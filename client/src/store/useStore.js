@@ -7,11 +7,16 @@ const useStore = create(
       user: null,
       accessToken: null,
       theme: 'dark',
+      language: 'en',
 
       setUser: (user) => set({ user }),
       setAccessToken: (token) => set({ accessToken: token }),
       updateCurrency: (currency) =>
         set((state) => ({ user: { ...state.user, currency } })),
+      setLanguage: (language) => {
+        set({ language })
+        document.documentElement.lang = language
+      },
       logout: () => set({ user: null, accessToken: null }),
 
       toggleTheme: () => {
@@ -30,6 +35,7 @@ const useStore = create(
         user: state.user,
         accessToken: state.accessToken,
         theme: state.theme,
+        language: state.language,
       }),
     }
   )

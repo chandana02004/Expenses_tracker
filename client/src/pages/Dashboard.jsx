@@ -244,7 +244,7 @@ export default function Dashboard() {
                   ?.filter((c) => c.budgetLimit || c.spent > 0)
                   .slice(0, 6)
                   .map((c, i) => (
-                    <BudgetBar key={c.id} {...c} delay={i * 0.07} />
+                    <BudgetBar key={c.id} {...c} currency={currency} delay={i * 0.07} />
                   ))}
             {!loading && data?.byCategory?.filter((c) => c.budgetLimit || c.spent > 0).length === 0 && (
               <p className="text-xs text-muted-foreground text-center py-4">

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { cn } from '@/utils/cn'
+import { formatCurrency } from '@/utils/currency'
 
 function barColor(pct) {
   if (pct >= 100) return '#ef4444'
@@ -8,7 +8,7 @@ function barColor(pct) {
   return '#22c55e'
 }
 
-export default function BudgetBar({ name, icon, spent, budgetLimit, color, delay = 0 }) {
+export default function BudgetBar({ name, icon, spent, budgetLimit, color, currency = 'USD', delay = 0 }) {
   const pct = budgetLimit ? Math.min((spent / budgetLimit) * 100, 100) : 0
   const bc = barColor(pct)
 
@@ -25,9 +25,9 @@ export default function BudgetBar({ name, icon, spent, budgetLimit, color, delay
           <span className="text-foreground font-medium text-sm">{name}</span>
         </div>
         <div className="text-right">
-          <span className="text-foreground font-semibold text-sm">${spent.toFixed(0)}</span>
+          <span className="text-foreground font-semibold text-sm">{formatCurrency(spent, currency)}</span>
           {budgetLimit && (
-            <span className="text-muted-foreground text-xs"> / ${budgetLimit.toFixed(0)}</span>
+            <span className="text-muted-foreground text-xs"> / {formatCurrency(budgetLimit, currency)}</span>
           )}
         </div>
       </div>
